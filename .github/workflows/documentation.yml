@@ -1,0 +1,30 @@
+name: Documentation
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "modules/**"
+      - "README.md"
+      - "CHANGELOG.md"
+
+permissions:
+  contents: read
+
+jobs:
+  links-and-presence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required docs exist
+        run: |
+          set -euo pipefail
+          for f in \
+            README.md CHANGELOG.md SECURITY.md CONTRIBUTING.md \
+            docs/compatibility.md docs/architecture.md docs/threat-model.md \
+            docs/shared-responsibility.md docs/operations.md docs/upgrades.md \
+            docs/adr/0001-composable-platform-kit.md \
+            docs/runbooks/disable-pool.md \
+            docs/runbooks/credential-compromise.md; do
+            test -f "$f" || { echo "missing $f"; exit 1; }
+          done
