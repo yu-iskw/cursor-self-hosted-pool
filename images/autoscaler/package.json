@@ -8,6 +8,6 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@google-cloud/run": "^2.0.0"
+    "@google-cloud/run": "^3.3.0"
   }
 }
