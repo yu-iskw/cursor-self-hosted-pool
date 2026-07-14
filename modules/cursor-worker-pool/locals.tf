@@ -3,6 +3,7 @@ locals {
 
   name_hash = substr(sha1("${var.repository.owner}/${var.repository.name}/${var.environment}"), 0, 4)
 
+  # Cloud Run Worker Pool names must be 49 characters or fewer.
   generated_name = lower(
     substr(
       join("-", compact([
@@ -12,7 +13,7 @@ locals {
         local.name_hash,
       ])),
       0,
-      63
+      49
     )
   )
 

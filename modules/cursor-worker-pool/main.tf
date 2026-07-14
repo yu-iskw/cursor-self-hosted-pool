@@ -143,6 +143,10 @@ resource "google_cloud_run_v2_worker_pool" "this" {
       condition     = length(local.expired_exceptions) == 0
       error_message = "One or more policy exceptions have expired."
     }
+    precondition {
+      condition     = var.network.profile != "unrestricted" || local.allow_unrestricted_egress
+      error_message = "network.profile=unrestricted requires exceptions.allow_unrestricted_egress."
+    }
   }
 }
 
@@ -290,6 +294,10 @@ resource "google_cloud_run_v2_worker_pool" "autoscaled" {
     precondition {
       condition     = length(local.expired_exceptions) == 0
       error_message = "One or more policy exceptions have expired."
+    }
+    precondition {
+      condition     = var.network.profile != "unrestricted" || local.allow_unrestricted_egress
+      error_message = "network.profile=unrestricted requires exceptions.allow_unrestricted_egress."
     }
   }
 }

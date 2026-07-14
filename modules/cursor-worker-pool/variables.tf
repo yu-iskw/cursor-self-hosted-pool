@@ -34,8 +34,13 @@ variable "name_prefix" {
 
 variable "name_override" {
   type        = string
-  description = "Optional explicit worker pool name. When null, a deterministic name is generated."
+  description = "Optional explicit worker pool name. When null, a deterministic name is generated. Must be 49 characters or fewer (Cloud Run Worker Pool limit)."
   default     = null
+
+  validation {
+    condition     = var.name_override == null ? true : length(var.name_override) <= 49
+    error_message = "name_override must be 49 characters or fewer (Cloud Run Worker Pool name limit)."
+  }
 }
 
 variable "image" {

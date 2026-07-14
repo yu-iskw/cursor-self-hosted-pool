@@ -61,8 +61,8 @@ resource "google_monitoring_alert_policy" "zero_instances" {
 
     condition_threshold {
       filter = <<-EOT
-        resource.type = "cloud_run_revision"
-        AND resource.labels.service_name = "${var.worker_pool_name}"
+        resource.type = "cloud_run_worker_pool"
+        AND resource.labels.worker_pool_name = "${var.worker_pool_name}"
         AND metric.type = "run.googleapis.com/container/instance_count"
       EOT
 

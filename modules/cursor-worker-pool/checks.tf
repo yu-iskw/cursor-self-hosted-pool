@@ -1,6 +1,7 @@
-# Plan-only assertions (capacity bounds, unrestricted-profile exception).
+# Plan-only assertions (capacity bounds).
 # Apply-blocking security rules live as lifecycle.precondition on the worker
-# pool resources in main.tf (identity, network, secrets, registry, exceptions).
+# pool resources in main.tf (identity, network, secrets, registry, exceptions,
+# unrestricted egress).
 check "capacity_within_policy" {
   assert {
     condition = (
@@ -11,12 +12,5 @@ check "capacity_within_policy" {
       local.memory_gib <= var.capacity_policy.maximum_memory_gib
     )
     error_message = "capacity exceeds capacity_policy bounds (cpu/memory/instance_count)."
-  }
-}
-
-check "unrestricted_requires_exception" {
-  assert {
-    condition     = var.network.profile != "unrestricted" || local.allow_unrestricted_egress
-    error_message = "network.profile=unrestricted requires exceptions.allow_unrestricted_egress."
   }
 }
