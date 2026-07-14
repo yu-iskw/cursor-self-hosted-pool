@@ -1,60 +1,122 @@
-# {PROJECT_NAME}
+# cursor-self-hosted-pool
 
-{PROJECT_DESCRIPTION}
+Enterprise-grade **Terraform platform kit** for deploying [Cursor self-hosted agent pools](https://cursor.com/docs/cloud-agent/self-hosted-pool) on **Google Cloud Run Worker Pools**.
 
-## Getting Started
+## Product thesis
 
-### Prerequisites
+- **One worker pool per repository and environment**
+- **Composable modules**, not a monolith or custom control plane
+- **Secure defaults** (digest-pinned images, dedicated runtime SA, Secret Manager refs, restricted network profile)
+- Integrates with — but does not own — enterprise VPC, org policy, Artifact Registry governance, or fleet control planes
 
-- [pnpm](https://pnpm.io/) **11.x** (see `packageManager` in `package.json`; use [Corepack](https://nodejs.org/api/corepack.html): `corepack enable`)
-- Node.js **22+** (see `engines` in `package.json`; `.node-version` pins the version used for local dev and CI)
+Cursor’s Cloud Run path uses **two** Worker Pools: agent workers plus a custom autoscaler. See [docs/compatibility.md](docs/compatibility.md) and [examples/secure-default](examples/secure-default).
 
-Dependency installs follow pnpm 11 supply-chain settings in [`pnpm-workspace.yaml`](pnpm-workspace.yaml): **minimum release age** (this template uses a **7-day** quarantine, stricter than pnpm’s built-in 24-hour default), **blocking exotic transitive dependencies**, and an **`allowBuilds`** allowlist for packages that run install scripts. See [pnpm 11 release notes](https://pnpm.io/blog/releases/11.0) and [Supply-chain defaults (Socket)](https://socket.dev/blog/pnpm-11-adds-new-supply-chain-protection-defaults).
+## Quick start
 
-Linting and formatting use [Trunk](https://trunk.io/) (ESLint, Prettier, and more). The Trunk **launcher** is installed with project dependencies—you do not need a separate Trunk install for the default workflow.
+```hcl
+module "runtime_identity" {
+  source = "git::https://github.com/yu-iskw/cursor-self-hosted-pool.git//modules/runtime-identity?ref=v0.1.0"
 
-### Installation
+  project_id  = var.project_id
+  repository  = "example-org/example-service"
+  environment = "development"
+}
 
-```bash
-pnpm install
+module "cursor_pool" {
+  source = "git::https://github.com/yu-iskw/cursor-self-hosted-pool.git//modules/cursor-worker-pool?ref=v0.1.0"
+
+  project_id = var.project_id
+  region     = var.region
+
+  repository = {
+    owner = "example-org"
+    name  = "example-service"
+  }
+
+  environment = "development"
+
+  image = {
+    repository = "us-docker.pkg.dev/platform-agents/cursor/worker"
+    digest     = "sha256:..."
+  }
+
+  runtime_service_account_email = module.runtime_identity.email
+
+  secret_environment_variables = {
+    CURSOR_API_KEY = {
+      secret_id = "projects/${var.project_id}/secrets/cursor-example-service-dev"
+      version   = "1"
+    }
+  }
+
+  network = {
+    profile           = "restricted"
+    network_id        = var.network_id
+    subnetwork_id     = var.subnetwork_id
+    route_all_traffic = true
+    approved_egress_control = {
+      resource_id = var.egress_policy_id
+      owner       = "platform-networking"
+    }
+  }
+
+  capacity = {
+    instance_count = 1
+    cpu            = "4"
+    memory         = "8Gi"
+  }
+}
 ```
 
-Optional: prefetch Trunk’s hermetic tools (helpful for offline work or CI images):
+Pin module versions with a git `ref=`. Do **not** track `main`.
 
-```bash
-pnpm exec trunk install
+## Repository layout
+
+```text
+modules/           # Published Terraform modules
+examples/          # Reference compositions (including dual-pool secure-default)
+docs/              # Architecture, threat model, compatibility, runbooks
+images/            # Reference Dockerfiles for worker and autoscaler (BYO image factory)
+tests/             # Terraform tests and fixtures
+scripts/           # validate / docs / release helpers
 ```
 
-If you prefer a global `trunk` on your PATH, see the [Trunk installation guide](https://docs.trunk.io/references/cli/getting-started/install) (e.g. `brew install trunk-io` on macOS).
+## Modules
 
-### Supply-chain protections
+| Module                                             | Purpose                                   |
+| -------------------------------------------------- | ----------------------------------------- |
+| [`cursor-worker-pool`](modules/cursor-worker-pool) | One Cloud Run Worker Pool                 |
+| [`runtime-identity`](modules/runtime-identity)     | Dedicated user-managed service account    |
+| [`secret-bindings`](modules/secret-bindings)       | Secret-level IAM for the runtime SA       |
+| [`network-profile`](modules/network-profile)       | Validated network profile → pool settings |
+| [`observability`](modules/observability)           | Dashboards / alert policies               |
+| [`workload-identity`](modules/workload-identity)   | Narrow CI → GCP federation helpers        |
+| [`project-bootstrap`](modules/project-bootstrap)   | Optional API enablement                   |
 
-The template uses **pnpm 11** with settings in [`pnpm-workspace.yaml`](pnpm-workspace.yaml): a **7-day** [`minimumReleaseAge`](https://pnpm.io/settings#minimumreleaseage) (10080 minutes, stricter than pnpm’s default 1 day), [`blockExoticSubdeps`](https://pnpm.io/settings#blockexoticsubdeps) enabled, and an [`allowBuilds`](https://pnpm.io/settings#allowbuilds) map for dependencies that must run install scripts (pnpm 11 requires this for native toolchain packages such as esbuild). See the [pnpm 11 release notes](https://pnpm.io/blog/releases/11.0).
+## Prerequisites
 
-### Development
+- Terraform `>= 1.6`
+- `hashicorp/google` `>= 6.38.0`
+- GCP project with billing; APIs listed in [docs/compatibility.md](docs/compatibility.md)
+- Cursor **Enterprise** self-hosted pool capability and a **service account API key**
+- Org-built worker (and optional autoscaler) images in Artifact Registry
+
+## Local validation
 
 ```bash
-pnpm dev
+./scripts/validate.sh
 ```
 
-### Build
+## Documentation
 
-```bash
-pnpm build
-```
-
-### Linting & Formatting
-
-```bash
-pnpm lint
-pnpm format
-```
-
-## Project Structure
-
-- `packages/`: Monorepo packages
-  - `common/`: Shared utilities and types
+- [Compatibility / Phase 0](docs/compatibility.md)
+- [Architecture](docs/architecture.md)
+- [Threat model](docs/threat-model.md)
+- [Shared responsibility](docs/shared-responsibility.md)
+- [Operations & runbooks](docs/operations.md)
+- [Upgrades](docs/upgrades.md)
+- [ADR 0001](docs/adr/0001-composable-platform-kit.md)
 
 ## License
 
-{LICENSE}
+Apache-2.0. See [LICENSE](LICENSE).

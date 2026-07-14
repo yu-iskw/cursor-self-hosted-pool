@@ -1,0 +1,54 @@
+name: Terraform
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+          terraform_wrapper: false
+
+      - name: Format
+        run: terraform fmt -recursive -check -diff modules examples
+
+      - name: Init and validate modules
+        run: |
+          set -euo pipefail
+          for d in modules/*/; do
+            echo "==> $d"
+            (cd "$d" && terraform init -backend=false -input=false && terraform validate)
+          done
+
+      - name: Init and validate examples
+        run: |
+          set -euo pipefail
+          for d in examples/*/; do
+            if ls "$d"*.tf >/dev/null 2>&1; then
+              echo "==> $d"
+              (cd "$d" && terraform init -backend=false -input=false && terraform validate)
+            fi
+          done
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.55.1
+
+      - name: Run TFLint
+        run: |
+          set -euo pipefail
+          for d in modules/*/; do
+            echo "==> tflint $d"
+            (cd "$d" && tflint --init && tflint -f compact)
+          done

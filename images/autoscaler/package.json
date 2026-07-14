@@ -1,0 +1,13 @@
+{
+  "name": "cursor-worker-autoscaler",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Autoscaler for Cursor Cloud Run Worker Pools",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@google-cloud/run": "^2.0.0"
+  }
+}

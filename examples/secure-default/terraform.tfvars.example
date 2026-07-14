@@ -1,0 +1,20 @@
+project_id   = "my-gcp-project"
+region       = "us-central1"
+network_id   = "projects/my-gcp-project/global/networks/shared-vpc"
+subnetwork_id = "projects/my-gcp-project/regions/us-central1/subnetworks/cursor-workers"
+egress_policy_id = "organizations/123/policies/cursor-egress"
+
+worker_image_repository     = "us-docker.pkg.dev/platform-agents/cursor/worker"
+worker_image_digest         = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+autoscaler_image_repository = "us-docker.pkg.dev/platform-agents/cursor/autoscaler"
+autoscaler_image_digest     = "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+
+cursor_api_key_secret_id      = "projects/my-gcp-project/secrets/cursor-example-service-dev"
+cursor_api_key_secret_version = "1"
+git_token_secret_id           = "projects/my-gcp-project/secrets/git-example-service-dev"
+git_token_secret_version      = "1"
+
+repo_url          = "https://github.com/example-org/example-service.git"
+repository_owner  = "example-org"
+repository_name   = "example-service"
+environment       = "development"
