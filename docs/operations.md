@@ -2,13 +2,13 @@
 
 ## Day-2 tasks
 
-| Task | Guidance |
-| --- | --- |
-| Disable pool | [runbooks/disable-pool.md](runbooks/disable-pool.md) |
+| Task                  | Guidance                                                               |
+| --------------------- | ---------------------------------------------------------------------- |
+| Disable pool          | [runbooks/disable-pool.md](runbooks/disable-pool.md)                   |
 | Credential compromise | [runbooks/credential-compromise.md](runbooks/credential-compromise.md) |
-| Suspicious egress | [runbooks/suspicious-egress.md](runbooks/suspicious-egress.md) |
-| Image vulnerability | [runbooks/image-vulnerability.md](runbooks/image-vulnerability.md) |
-| Failed revision | [runbooks/failed-revision.md](runbooks/failed-revision.md) |
+| Suspicious egress     | [runbooks/suspicious-egress.md](runbooks/suspicious-egress.md)         |
+| Image vulnerability   | [runbooks/image-vulnerability.md](runbooks/image-vulnerability.md)     |
+| Failed revision       | [runbooks/failed-revision.md](runbooks/failed-revision.md)             |
 
 ## Capacity
 

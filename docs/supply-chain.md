@@ -8,12 +8,12 @@ Organizations build images (see `images/`), push to Artifact Registry, and pin
 
 ## Controls
 
-| Control | Where |
-| --- | --- |
-| Digest format | Module validation |
-| Registry allowlist | `security.allowed_image_registry_prefixes` |
+| Control                       | Where                                             |
+| ----------------------------- | ------------------------------------------------- |
+| Digest format                 | Module validation                                 |
+| Registry allowlist            | `security.allowed_image_registry_prefixes`        |
 | Signature / SBOM / vuln gates | CI + Binary Authorization (optional module input) |
-| Base image updates | Org image factory process |
+| Base image updates            | Org image factory process                         |
 
 ## Image factory sketch
 

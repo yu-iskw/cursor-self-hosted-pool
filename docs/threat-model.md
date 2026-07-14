@@ -8,15 +8,15 @@
 
 ## Major threats and mitigations
 
-| Threat | Mitigation |
-| --- | --- |
+| Threat                  | Mitigation                                               |
+| ----------------------- | -------------------------------------------------------- |
 | Credential exfiltration | Dedicated secrets, restricted egress, least-privilege SA |
-| Lateral movement | Per-repo/env identity; secret-level IAM |
-| Supply-chain compromise | Digest pinning, org image factory, scanning/attestation |
-| Cost abuse | Capacity policy, alerts, instance caps |
-| Infrastructure mutation | Separate deployer vs runtime; no runtime pool/IAM admin |
-| Terraform state leakage | Secret references only; no payloads in variables |
-| Unauthorized deployment | WIF, protected branches, scoped deployer |
+| Lateral movement        | Per-repo/env identity; secret-level IAM                  |
+| Supply-chain compromise | Digest pinning, org image factory, scanning/attestation  |
+| Cost abuse              | Capacity policy, alerts, instance caps                   |
+| Infrastructure mutation | Separate deployer vs runtime; no runtime pool/IAM admin  |
+| Terraform state leakage | Secret references only; no payloads in variables         |
+| Unauthorized deployment | WIF, protected branches, scoped deployer                 |
 
 ## Explicit non-claims
 

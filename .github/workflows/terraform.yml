@@ -49,5 +49,6 @@ jobs:
         run: |
           set -euo pipefail
           for d in modules/*/; do
-            (cd "$d" && tflint --init && tflint -f compact) || true
+            echo "==> tflint $d"
+            (cd "$d" && tflint --init && tflint -f compact)
           done

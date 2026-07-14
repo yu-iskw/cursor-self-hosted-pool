@@ -46,6 +46,16 @@ module "runtime_identity" {
   environment = each.key
 }
 
+module "secrets" {
+  for_each              = var.environments
+  source                = "../../modules/secret-bindings"
+  project_id            = var.project_id
+  service_account_email = module.runtime_identity[each.key].email
+  secrets = {
+    cursor = { secret_id = each.value.cursor_api_key_secret_id }
+  }
+}
+
 module "cursor_pool" {
   for_each                      = var.environments
   source                        = "../../modules/cursor-worker-pool"
@@ -63,7 +73,8 @@ module "cursor_pool" {
       version   = each.value.cursor_api_key_secret_version
     }
   }
-  network = module.network_profile.worker_pool_network
+  network    = module.network_profile.worker_pool_network
+  depends_on = [module.secrets]
 }
 
 output "pools" {

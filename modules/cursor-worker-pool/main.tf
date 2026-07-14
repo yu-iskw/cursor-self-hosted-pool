@@ -1,10 +1,13 @@
+# Two resources exist solely because Terraform lifecycle.ignore_changes must be
+# a static list (cannot be conditional). Keep templates identical when editing.
+# WARNING: toggling ignore_manual_instance_count_changes replaces the pool
+# (this <-> autoscaled address change). Set the flag at create time and keep it.
 resource "google_cloud_run_v2_worker_pool" "this" {
   count = var.ignore_manual_instance_count_changes ? 0 : 1
 
-  name     = local.worker_pool_name
-  location = var.region
-  project  = var.project_id
-
+  name                = local.worker_pool_name
+  location            = var.region
+  project             = var.project_id
   description         = var.description
   labels              = local.labels
   deletion_protection = local.deletion_protection
@@ -115,12 +118,6 @@ resource "google_cloud_run_v2_worker_pool" "this" {
       condition     = !var.security.prohibit_default_identity || !local.runtime_is_default_compute_sa
       error_message = "A default Compute Engine service account cannot be used as the runtime identity."
     }
-
-    precondition {
-      condition     = !var.security.require_image_digest || can(regex("^sha256:[0-9a-f]{64}$", var.image.digest))
-      error_message = "The worker image must be pinned by a valid SHA-256 digest."
-    }
-
     precondition {
       condition = (
         !var.security.require_network_attachment ||
@@ -130,10 +127,21 @@ resource "google_cloud_run_v2_worker_pool" "this" {
       )
       error_message = "A VPC network attachment (Direct VPC or connector) is required for this network profile."
     }
-
     precondition {
       condition     = local.restricted_ok || local.allow_unrestricted_egress
       error_message = "The restricted network profile requires network, subnet, route_all_traffic=true, and approved_egress_control."
+    }
+    precondition {
+      condition     = local.secret_versions_ok
+      error_message = "Secret versions must be pinned (not \"latest\") unless exception allow_secret_version_latest is set."
+    }
+    precondition {
+      condition     = local.registry_ok
+      error_message = "image.repository is not under security.allowed_image_registry_prefixes."
+    }
+    precondition {
+      condition     = length(local.expired_exceptions) == 0
+      error_message = "One or more policy exceptions have expired."
     }
   }
 }
@@ -141,10 +149,9 @@ resource "google_cloud_run_v2_worker_pool" "this" {
 resource "google_cloud_run_v2_worker_pool" "autoscaled" {
   count = var.ignore_manual_instance_count_changes ? 1 : 0
 
-  name     = local.worker_pool_name
-  location = var.region
-  project  = var.project_id
-
+  name                = local.worker_pool_name
+  location            = var.region
+  project             = var.project_id
   description         = var.description
   labels              = local.labels
   deletion_protection = local.deletion_protection
@@ -259,12 +266,6 @@ resource "google_cloud_run_v2_worker_pool" "autoscaled" {
       condition     = !var.security.prohibit_default_identity || !local.runtime_is_default_compute_sa
       error_message = "A default Compute Engine service account cannot be used as the runtime identity."
     }
-
-    precondition {
-      condition     = !var.security.require_image_digest || can(regex("^sha256:[0-9a-f]{64}$", var.image.digest))
-      error_message = "The worker image must be pinned by a valid SHA-256 digest."
-    }
-
     precondition {
       condition = (
         !var.security.require_network_attachment ||
@@ -274,10 +275,21 @@ resource "google_cloud_run_v2_worker_pool" "autoscaled" {
       )
       error_message = "A VPC network attachment (Direct VPC or connector) is required for this network profile."
     }
-
     precondition {
       condition     = local.restricted_ok || local.allow_unrestricted_egress
       error_message = "The restricted network profile requires network, subnet, route_all_traffic=true, and approved_egress_control."
+    }
+    precondition {
+      condition     = local.secret_versions_ok
+      error_message = "Secret versions must be pinned (not \"latest\") unless exception allow_secret_version_latest is set."
+    }
+    precondition {
+      condition     = local.registry_ok
+      error_message = "image.repository is not under security.allowed_image_registry_prefixes."
+    }
+    precondition {
+      condition     = length(local.expired_exceptions) == 0
+      error_message = "One or more policy exceptions have expired."
     }
   }
 }

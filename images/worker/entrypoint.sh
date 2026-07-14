@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 export GIT_TERMINAL_PROMPT=0
@@ -24,9 +24,9 @@ fi
 
 cd "$REPO_DIR"
 
-AGENT_BIN=$(command -v agent || find /root -name agent -type f | head -n 1)
+AGENT_BIN=$(command -v agent || true)
 if [ -z "$AGENT_BIN" ]; then
-  echo "FATAL: Could not find the Cursor 'agent' binary."
+  echo "FATAL: Cursor 'agent' binary not on PATH. Ensure the image installs the CLI and sets PATH."
   exit 1
 fi
 

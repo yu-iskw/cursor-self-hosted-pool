@@ -2,13 +2,13 @@
 
 ## Profiles
 
-| Profile | Intent |
-| --- | --- |
-| `unrestricted` | Explicit exception only |
-| `nat-logged` | VPC-routed via logged NAT |
-| `restricted` | Secure default; requires egress attestation |
-| `private-only` | Private Google / internal only |
-| `custom` | Advanced passthrough |
+| Profile        | Intent                                      |
+| -------------- | ------------------------------------------- |
+| `unrestricted` | Explicit exception only                     |
+| `nat-logged`   | VPC-routed via logged NAT                   |
+| `restricted`   | Secure default; requires egress attestation |
+| `private-only` | Private Google / internal only              |
+| `custom`       | Advanced passthrough                        |
 
 ## Required destinations (Cursor)
 

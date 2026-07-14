@@ -19,8 +19,8 @@ test -d images/autoscaler
 ./scripts/validate.sh
 
 if grep -R "YOUR_CURSOR_API_KEY\|AKIA[0-9A-Z]\\{16\\}" --include='*.tf' --include='*.md' modules examples docs 2>/dev/null; then
-  echo "Possible secret-like placeholders found; review before release."
-  exit 1
+	echo "Possible secret-like placeholders found; review before release."
+	exit 1
 fi
 
 echo "==> release-check OK"

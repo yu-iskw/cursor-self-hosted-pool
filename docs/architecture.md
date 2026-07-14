@@ -23,9 +23,9 @@ flowchart TB
 
 Cursor’s Cloud Run guide requires:
 
-| Pool | Role |
-| --- | --- |
-| Worker | Runs `agent worker start --pool` |
+| Pool       | Role                                          |
+| ---------- | --------------------------------------------- |
+| Worker     | Runs `agent worker start --pool`              |
 | Autoscaler | Polls fleet API; sets `manual_instance_count` |
 
 The core module provisions **one** pool. `examples/secure-default` wires both and

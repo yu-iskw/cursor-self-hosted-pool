@@ -20,7 +20,7 @@ See the root [README](../../README.md) and [examples](../../examples).
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| terraform | >= 1.6.0 |
-| google | >= 6.38.0, < 8.0.0 |
+| Name      | Version            |
+| --------- | ------------------ |
+| terraform | >= 1.6.0           |
+| google    | >= 6.38.0, < 8.0.0 |

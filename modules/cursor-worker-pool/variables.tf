@@ -156,14 +156,13 @@ variable "network" {
 
 variable "security" {
   type = object({
-    require_image_digest            = optional(bool, true)
     prohibit_default_identity       = optional(bool, true)
     require_network_attachment      = optional(bool, true)
     deletion_protection             = optional(bool, true)
     require_pinned_secret_versions  = optional(bool, true)
     allowed_image_registry_prefixes = optional(list(string), [])
   })
-  description = "Secure-by-default toggles."
+  description = "Secure-by-default toggles. Image digests are always required via var.image validation."
   default     = {}
 }
 
@@ -224,7 +223,7 @@ variable "description" {
 variable "ignore_manual_instance_count_changes" {
   type        = bool
   default     = false
-  description = "When true, Terraform ignores changes to scaling.manual_instance_count (use when an autoscaler owns capacity)."
+  description = "When true, Terraform ignores changes to scaling.manual_instance_count (use when an autoscaler owns capacity). WARNING: toggling this after create replaces the Worker Pool resource address (this <-> autoscaled). Set at create time and keep stable."
 }
 
 variable "binary_authorization" {

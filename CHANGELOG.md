@@ -14,3 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Examples including dual-pool `secure-default`
 - Phase 0 compatibility documentation and operational runbooks
 - Reference worker and autoscaler Dockerfiles under `images/`
+
+### Security
+
+- Image digests are always required (`var.image.digest`); there is no `security.require_image_digest` escape hatch
+- Critical identity/network/secret policy rules are enforced via `lifecycle.precondition` (apply blockers), not check warnings alone

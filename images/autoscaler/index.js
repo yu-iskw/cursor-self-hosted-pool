@@ -11,6 +11,7 @@ const MIN_INSTANCES = parseInt(process.env.MIN_INSTANCES || "1", 10);
 const MAX_INSTANCES = parseInt(process.env.MAX_INSTANCES || "50", 10);
 const POLLING_INTERVAL_MS = parseInt(process.env.POLLING_INTERVAL_MS || "30000", 10);
 const PORT = parseInt(process.env.PORT || "8080", 10);
+const LOG_VERBOSE = process.env.LOG_VERBOSE === "1";
 
 if (!PROJECT_ID || !LOCATION || !TARGET_POOL_NAME || !CURSOR_API_KEY) {
   console.error("FATAL: Missing required environment variables.");
@@ -18,8 +19,27 @@ if (!PROJECT_ID || !LOCATION || !TARGET_POOL_NAME || !CURSOR_API_KEY) {
 }
 
 const workerPoolClient = new WorkerPoolsClient();
+let cycleInFlight = false;
+
+function logInfo(message) {
+  if (LOG_VERBOSE) {
+    console.log(message);
+  }
+}
+
+async function getCurrentManualInstanceCount() {
+  const workerPoolPath = workerPoolClient.workerPoolPath(PROJECT_ID, LOCATION, TARGET_POOL_NAME);
+  const [pool] = await workerPoolClient.getWorkerPool({ name: workerPoolPath });
+  return pool.scaling?.manualInstanceCount ?? 0;
+}
 
 async function scaleCursorWorkers() {
+  if (cycleInFlight) {
+    logInfo("Skipping poll; previous scaling cycle still in flight.");
+    return;
+  }
+  cycleInFlight = true;
+
   try {
     const response = await fetch("https://api.cursor.com/v0/private-workers/summary", {
       method: "GET",
@@ -45,26 +65,30 @@ async function scaleCursorWorkers() {
     } else if (user && user.totalConnected > 0) {
       inUse = user.inUse;
       totalConnected = user.totalConnected;
-    } else {
-      console.log("Current state: 0 workers connected. Waiting for next cycle...");
-      return;
     }
-
-    console.log(`Current state: ${inUse} workers in use out of ${totalConnected} total connected.`);
 
     let desiredInstances = Math.ceil(inUse / TARGET_UTILIZATION);
     desiredInstances = Math.max(MIN_INSTANCES, Math.min(desiredInstances, MAX_INSTANCES));
-
-    if (desiredInstances !== totalConnected) {
-      console.log(
-        `Scaling Worker Pool from ${totalConnected} to ${desiredInstances} instances...`,
-      );
-      await updateCloudRunWorkerPool(desiredInstances);
+    if (totalConnected === 0) {
+      logInfo(`Fleet reports 0 connected workers; targeting MIN_INSTANCES=${MIN_INSTANCES}.`);
     } else {
-      console.log("Utilization is stable. No scaling action required.");
+      logInfo(`Fleet: ${inUse} in use / ${totalConnected} connected.`);
     }
+
+    const currentInstances = await getCurrentManualInstanceCount();
+    if (desiredInstances === currentInstances) {
+      logInfo(`Cloud Run already at ${currentInstances} instances. No scaling action.`);
+      return;
+    }
+
+    console.log(
+      `Scaling Worker Pool from ${currentInstances} to ${desiredInstances} (fleet connected=${totalConnected}, inUse=${inUse}).`,
+    );
+    await updateCloudRunWorkerPool(desiredInstances);
   } catch (error) {
     console.error("Error in scaling execution:", error);
+  } finally {
+    cycleInFlight = false;
   }
 }
 

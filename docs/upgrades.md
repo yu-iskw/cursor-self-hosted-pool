@@ -2,11 +2,11 @@
 
 ## Semantic versioning
 
-| Change | Version bump |
-| --- | --- |
-| Removed/renamed inputs, resource address moves, breaking defaults | Major |
-| Additive optional features, new examples | Minor |
-| Bug/docs/test fixes, non-breaking hardening | Patch |
+| Change                                                            | Version bump |
+| ----------------------------------------------------------------- | ------------ |
+| Removed/renamed inputs, resource address moves, breaking defaults | Major        |
+| Additive optional features, new examples                          | Minor        |
+| Bug/docs/test fixes, non-breaking hardening                       | Patch        |
 
 ## Consumer pinning
 

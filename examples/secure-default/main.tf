@@ -279,12 +279,6 @@ module "autoscaler_pool" {
 
   network = module.network_profile.worker_pool_network
 
-  security = {
-    # Autoscaler does not use the Cursor management TCP probe the same way;
-    # keep digest + identity requirements.
-    require_network_attachment = true
-  }
-
   labels = merge(local.labels, { component = "cursor-autoscaler" })
 
   depends_on = [

@@ -83,15 +83,15 @@ scripts/           # validate / docs / release helpers
 
 ## Modules
 
-| Module | Purpose |
-| --- | --- |
-| [`cursor-worker-pool`](modules/cursor-worker-pool) | One Cloud Run Worker Pool |
-| [`runtime-identity`](modules/runtime-identity) | Dedicated user-managed service account |
-| [`secret-bindings`](modules/secret-bindings) | Secret-level IAM for the runtime SA |
-| [`network-profile`](modules/network-profile) | Validated network profile → pool settings |
-| [`observability`](modules/observability) | Dashboards / alert policies |
-| [`workload-identity`](modules/workload-identity) | Narrow CI → GCP federation helpers |
-| [`project-bootstrap`](modules/project-bootstrap) | Optional API enablement |
+| Module                                             | Purpose                                   |
+| -------------------------------------------------- | ----------------------------------------- |
+| [`cursor-worker-pool`](modules/cursor-worker-pool) | One Cloud Run Worker Pool                 |
+| [`runtime-identity`](modules/runtime-identity)     | Dedicated user-managed service account    |
+| [`secret-bindings`](modules/secret-bindings)       | Secret-level IAM for the runtime SA       |
+| [`network-profile`](modules/network-profile)       | Validated network profile → pool settings |
+| [`observability`](modules/observability)           | Dashboards / alert policies               |
+| [`workload-identity`](modules/workload-identity)   | Narrow CI → GCP federation helpers        |
+| [`project-bootstrap`](modules/project-bootstrap)   | Optional API enablement                   |
 
 ## Prerequisites
 
